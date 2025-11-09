@@ -1,0 +1,138 @@
+#include "database.h"
+#include <iostream>
+#include <sstream>
+
+namespace finance {
+
+Database::Database(const std::string& connection_string) {
+    try {
+        conn_ = std::make_unique<pqxx::connection>(connection_string);
+        if (conn_->is_open()) {
+            std::cout << "Connected to database successfully." << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Database connection failed: " << e.what() << std::endl;
+        throw;
+    }
+}
+
+Database::~Database() {
+    if (conn_ && conn_->is_open()) {
+        conn_->close();
+    }
+}
+
+void Database::initialize() {
+    try {
+        pqxx::work txn(*conn_);
+        txn.exec(R"(
+            CREATE TABLE IF NOT EXISTS entries (
+                id SERIAL PRIMARY KEY,
+                month DATE NOT NULL,
+                type VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income')),
+                name VARCHAR(255) NOT NULL,
+                value DECIMAL(10, 2) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        )");
+        
+        txn.exec("CREATE INDEX IF NOT EXISTS idx_entries_month ON entries(month)");
+        txn.exec("CREATE INDEX IF NOT EXISTS idx_entries_type ON entries(type)");
+        
+        txn.commit();
+        std::cout << "Database initialized successfully." << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Database initialization failed: " << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool Database::add_entry(const std::string& month, const std::string& type,
+                         const std::string& name, double value) {
+    try {
+        pqxx::work txn(*conn_);
+        
+        std::string query = "INSERT INTO entries (month, type, name, value) VALUES ($1, $2, $3, $4)";
+        txn.exec_params(query, month, type, name, value);
+        
+        txn.commit();
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to add entry: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+std::vector<Entry> Database::get_entries_by_month(const std::string& month) {
+    std::vector<Entry> entries;
+    
+    try {
+        pqxx::work txn(*conn_);
+        
+        pqxx::result res = txn.exec_params(
+            "SELECT id, month, type, name, value, created_at FROM entries WHERE month = $1 ORDER BY created_at DESC",
+            month
+        );
+        
+        for (const auto& row : res) {
+            Entry entry;
+            entry.id = row["id"].as<int>();
+            entry.month = row["month"].as<std::string>();
+            entry.type = row["type"].as<std::string>();
+            entry.name = row["name"].as<std::string>();
+            entry.value = row["value"].as<double>();
+            entry.created_at = row["created_at"].as<std::string>();
+            entries.push_back(entry);
+        }
+        
+        txn.commit();
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to retrieve entries: " << e.what() << std::endl;
+    }
+    
+    return entries;
+}
+
+double Database::get_total_income(const std::string& month) {
+    try {
+        pqxx::work txn(*conn_);
+        
+        pqxx::result res = txn.exec_params(
+            "SELECT COALESCE(SUM(value), 0) as total FROM entries WHERE month = $1 AND type = 'income'",
+            month
+        );
+        
+        txn.commit();
+        
+        if (!res.empty()) {
+            return res[0]["total"].as<double>();
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to get total income: " << e.what() << std::endl;
+    }
+    
+    return 0.0;
+}
+
+double Database::get_total_expenses(const std::string& month) {
+    try {
+        pqxx::work txn(*conn_);
+        
+        pqxx::result res = txn.exec_params(
+            "SELECT COALESCE(SUM(value), 0) as total FROM entries WHERE month = $1 AND type = 'expense'",
+            month
+        );
+        
+        txn.commit();
+        
+        if (!res.empty()) {
+            return res[0]["total"].as<double>();
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to get total expenses: " << e.what() << std::endl;
+    }
+    
+    return 0.0;
+}
+
+} // namespace finance
