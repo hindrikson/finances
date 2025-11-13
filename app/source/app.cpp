@@ -32,9 +32,22 @@ void display_menu() {
     std::cout << "\n=== Finance Tracker ===" << std::endl;
     std::cout << "1. Add Expense" << std::endl;
     std::cout << "2. Add Income" << std::endl;
-    std::cout << "3. View Month Summary" << std::endl;
-    std::cout << "4. View All Entries" << std::endl;
-    std::cout << "5. Exit" << std::endl;
+    std::cout << "3. Add Account State" << std::endl;
+    std::cout << "4. Edit Entry" << std::endl;
+    std::cout << "5. View Month Summary" << std::endl;
+    std::cout << "6. View All Entries" << std::endl;
+    std::cout << "7. Exit" << std::endl;
+    std::cout << "\nChoice: ";
+}
+
+void display_edit_entry_menu(){
+    std::cout << "\n=== Editing Entry ===" << std::endl;
+    std::cout << "1. Expense" << std::endl;
+    std::cout << "2. Income" << std::endl;
+    std::cout << "3. Account State" << std::endl;
+    std::cout << "4. Name" << std::endl;
+    std::cout << "5. Value" << std::endl;
+    std::cout << "6. Exit" << std::endl;
     std::cout << "\nChoice: ";
 }
 
@@ -59,6 +72,12 @@ void add_entry(finance::Database& db, const std::string& month, const std::strin
     } else {
         std::cout << "✗ Failed to add " << type << std::endl;
     }
+}
+
+void edit_entry(int id, 
+                const std::string& new_type = "None", 
+                const std::string& new_name = "None", 
+                double new_value = 0.0) {
 }
 
 void view_summary(finance::Database& db, const std::string& month) {
@@ -88,13 +107,15 @@ void view_entries(finance::Database& db, const std::string& month) {
     }
     
     std::cout << "\n=== Entries for " << month.substr(0, 7) << " ===" << std::endl;
-    std::cout << std::left << std::setw(10) << "Type" 
+    std::cout << std::left << std::setw(10) << "ID" 
+              << std::setw(30) << std::setw(10) << "Type" 
               << std::setw(30) << "Name" 
               << std::right << std::setw(12) << "Amount" << std::endl;
     std::cout << std::string(52, '-') << std::endl;
     
     for (const auto& entry : entries) {
-        std::cout << std::left << std::setw(10) << entry.type
+        std::cout << std::left << std::setw(10) << entry.id
+                  << std::setw(30) << std::setw(10) << entry.type
                   << std::setw(30) << entry.name
                   << std::right << std::setw(12) << std::fixed << std::setprecision(2) 
                   << "$" << entry.value << std::endl;
@@ -133,12 +154,55 @@ int main() {
                     add_entry(db, current_month, "income");
                     break;
                 case 3:
+                    add_entry(db, current_month, "account_state");
+                    break;
+                case 4:{
+                    std::cout << "Enter the entry id to be edited: " << std::endl;
+                    int id;
+                    std::cin >> id;
+                    std::cin.ignore();
+                    display_edit_entry_menu();
+                    int inner_choice;
+                    std::cin >> inner_choice;
+                    std::cin.ignore();
+                    switch (inner_choice){
+                        case 1:
+                            edit_entry(id, "expense");
+                            break;
+                        case 2:
+                            edit_entry(id, "income");
+                            break;
+                        case 3:
+                            edit_entry(id, "account_state");
+                            break;
+                        case 4: {
+                            std::string name;
+                            std::cout << "Enter new name: " << std::endl;
+                            std::cin >> name;
+                            std::cin.ignore();
+                            edit_entry(id, "None", name);  // Only change name
+                            break;
+                            }
+                        case 5:{
+                            double value;
+                            std::cout << "Enter new value: " << std::endl;
+                            std::cin >> value;
+                            std::cin.ignore();
+                            edit_entry(id, "None", "None", value);  // Only change value
+                            break;
+                               }
+                        case 6:
+                            break;
+                    }
+                       }
+
+                case 5:
                     view_summary(db, current_month);
                     break;
-                case 4:
+                case 6:
                     view_entries(db, current_month);
                     break;
-                case 5:
+                case 8:
                     std::cout << "Goodbye!" << std::endl;
                     return 0;
                 default:

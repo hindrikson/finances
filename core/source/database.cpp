@@ -29,7 +29,7 @@ void Database::initialize() {
             CREATE TABLE IF NOT EXISTS entries (
                 id SERIAL PRIMARY KEY,
                 month DATE NOT NULL,
-                type VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income')),
+                type VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income', 'account_state')),
                 name VARCHAR(255) NOT NULL,
                 value DECIMAL(10, 2) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -53,7 +53,7 @@ bool Database::add_entry(const std::string& month, const std::string& type,
         pqxx::work txn(*conn_);
         
         std::string query = "INSERT INTO entries (month, type, name, value) VALUES ($1, $2, $3, $4)";
-        txn.exec_params(query, month, type, name, value);
+        txn.exec(query, {month, type, name, value});
         
         txn.commit();
         return true;
@@ -63,15 +63,75 @@ bool Database::add_entry(const std::string& month, const std::string& type,
     }
 }
 
+bool Database::edit_entry(int id, const std::string& new_type, const std::string& new_name, 
+        double new_value) {
+        try {
+            pqxx::work txn(*conn_);
+
+            // Start building the update query
+            std::string query = "UPDATE entries SET ";
+
+            bool first = true;
+
+            // Check if new_type is not "None", then add it to the query
+            if (new_type != "None") {
+                if (!first) query += ", ";
+                query += "type = $1";
+                first = false;
+            }
+
+            // Check if new_name is not "None", then add it to the query
+            if (new_name != "None") {
+                if (!first) query += ", ";
+                query += "name = $2";
+                first = false;
+            }
+
+            // Check if new_value is not 0.0 (i.e., no change), then add it to the query
+            if (new_value != 0.0) {
+                if (!first) query += ", ";
+                query += "value = $3";
+                first = false;
+            }
+
+            // Complete the query with WHERE condition for the ID
+            query += " WHERE id = $4";
+
+            // Prepare the parameters based on what was passed in
+            std::vector<std::string> params;
+            if (new_type != "None") params.push_back(new_type);
+            if (new_name != "None") params.push_back(new_name);
+            if (new_value != 0.0) params.push_back(std::to_string(new_value));
+            params.push_back(std::to_string(id));  // Always pass the ID as the last parameter
+
+            // Execute the query with the parameters
+            if (params.size() == 4) {
+                txn.exec_params(query, params[0], params[1], params[2], params[3]);
+            } else if (params.size() == 3) {
+                txn.exec_params(query, params[0], params[1], params[2]);
+            } else if (params.size() == 2) {
+                txn.exec_params(query, params[0], params[1]);
+            } else {
+                txn.exec_params(query, params[0]);
+            }
+
+            txn.commit();
+            return true;
+        } catch (const std::exception& e) {
+            std::cerr << "Failed to edit entry: " << e.what() << std::endl;
+            return false;
+        }
+    }
+
 std::vector<Entry> Database::get_entries_by_month(const std::string& month) {
     std::vector<Entry> entries;
     
     try {
         pqxx::work txn(*conn_);
         
-        pqxx::result res = txn.exec_params(
+        pqxx::result res = txn.exec(
             "SELECT id, month, type, name, value, created_at FROM entries WHERE month = $1 ORDER BY created_at DESC",
-            month
+            std::vector<std::string>{month}
         );
         
         for (const auto& row : res) {
@@ -97,9 +157,9 @@ double Database::get_total_income(const std::string& month) {
     try {
         pqxx::work txn(*conn_);
         
-        pqxx::result res = txn.exec_params(
+        pqxx::result res = txn.exec(
             "SELECT COALESCE(SUM(value), 0) as total FROM entries WHERE month = $1 AND type = 'income'",
-            month
+            std::vector<std::string>{ month }
         );
         
         txn.commit();
@@ -118,9 +178,9 @@ double Database::get_total_expenses(const std::string& month) {
     try {
         pqxx::work txn(*conn_);
         
-        pqxx::result res = txn.exec_params(
+        pqxx::result res = txn.exec(
             "SELECT COALESCE(SUM(value), 0) as total FROM entries WHERE month = $1 AND type = 'expense'",
-            month
+            std::vector<std::string>{ month }
         );
         
         txn.commit();

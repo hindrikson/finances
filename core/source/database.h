@@ -27,6 +27,9 @@ public:
     bool add_entry(const std::string& month, const std::string& type, 
                    const std::string& name, double value);
 
+    // Edit entry
+    bool edit_entry(int id, const std::string& new_type = "None", const std::string& new_name = "None", double new_value = 0.0);
+
     // Get all entries for a specific month
     std::vector<Entry> get_entries_by_month(const std::string& month);
 
