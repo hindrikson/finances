@@ -1,3 +1,4 @@
+#include "dotenv"
 #include "database.h"
 #include <iostream>
 #include <iomanip>
@@ -123,6 +124,9 @@ void view_entries(finance::Database& db, const std::string& month) {
 }
 
 int main() {
+
+    dotenv::init();
+
     // Database connection string
     // Format: "host=localhost port=5432 dbname=finances user=youruser password=yourpass"
     const char* conn_str = std::getenv("DB_CONNECTION_STRING");
