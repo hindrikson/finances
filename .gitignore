@@ -1,4 +1,7 @@
 # Directories
+
+app/source/.env
+
 .vs/
 Binaries/
 
