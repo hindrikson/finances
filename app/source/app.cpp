@@ -1,7 +1,7 @@
-#include "dotenv"
 #include "database.h"
 #include <iostream>
 #include <iomanip>
+#include <limits>
 #include <regex>
 #include <cstdlib>
 
@@ -75,10 +75,25 @@ void add_entry(finance::Database& db, const std::string& month, const std::strin
     }
 }
 
-void edit_entry(int id, 
-                const std::string& new_type = "None", 
-                const std::string& new_name = "None", 
-                double new_value = 0.0) {
+void edit_entry(finance::Database& db,
+        int id,
+        std::optional<std::string> type = std::nullopt,
+        std::optional<std::string> name = std::nullopt,
+        std::optional<double> value = std::nullopt
+        ){
+
+    if (type.has_value()){
+        db.update_type(id, type.value());
+    }
+
+    if (name.has_value()){
+        std::cout << "Hello world!" << std::endl;
+        db.update_name(id, name.value());
+    }
+
+    if (value.has_value()){
+        db.update_value(id, value.value());
+    }
 }
 
 void view_summary(finance::Database& db, const std::string& month) {
@@ -123,9 +138,88 @@ void view_entries(finance::Database& db, const std::string& month) {
     }
 }
 
-int main() {
+void handle_edit_entry(finance::Database& db){
+    std::cout << "Enter the entry id to be edited: ";
+    int id;
 
-    dotenv::init();
+    if (!(std::cin >> id)){
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid ID" << std::endl;
+        return; 
+    }
+
+    std::cin.ignore();
+
+    if (!db.entry_exists(id)){
+        std::cout << "Error: No entry found with ID " << id << std::endl;
+        return;
+    }
+
+    display_edit_entry_menu();
+
+    int choice;
+
+    if (!(std::cin >> choice)){
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max() , '\n');
+        std::cout << "Invalid choice" << std::endl;
+        return;
+    }
+    
+    switch (choice) {
+        case 1:
+            edit_entry(db, id, "expense");
+            break;
+
+        case 2:
+            edit_entry(db, id, "income");
+            break;
+
+        case 3:
+            edit_entry(db, id, "account_state");
+            break;
+
+        case 4: {
+                    std::string name;
+                    std::cout << "Enter new name: ";
+                    std::getline(std::cin, name);
+
+                    if (name.empty()){
+                        std::cout <<"Name can not be empty!" << std::endl;
+                        return;
+                    }
+
+                    edit_entry(db, id, std::nullopt, name);
+                    break;
+                }
+        case 5: {
+                    double value;
+                    std::cout << "Enter new value: ";
+
+                    if (!(std::cin >> value)){
+                        std::cin.clear();
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        std::cout << "Ivalid value!" << std::endl;
+                        return;
+                    }
+
+                    std::cin.ignore(); // clear new line
+                    
+                    edit_entry(db, id, std::nullopt, std::nullopt, value);
+                    break;
+                }
+        case 6: 
+            std::cout << "Edit cancelled." << std::endl;
+            break;
+
+        default:
+            std::cout << "Invalid choice!" << std::endl;
+    }
+
+}
+
+int main() {
 
     // Database connection string
     // Format: "host=localhost port=5432 dbname=finances user=youruser password=yourpass"
@@ -160,46 +254,9 @@ int main() {
                 case 3:
                     add_entry(db, current_month, "account_state");
                     break;
-                case 4:{
-                    std::cout << "Enter the entry id to be edited: " << std::endl;
-                    int id;
-                    std::cin >> id;
-                    std::cin.ignore();
-                    display_edit_entry_menu();
-                    int inner_choice;
-                    std::cin >> inner_choice;
-                    std::cin.ignore();
-                    switch (inner_choice){
-                        case 1:
-                            edit_entry(id, "expense");
-                            break;
-                        case 2:
-                            edit_entry(id, "income");
-                            break;
-                        case 3:
-                            edit_entry(id, "account_state");
-                            break;
-                        case 4: {
-                            std::string name;
-                            std::cout << "Enter new name: " << std::endl;
-                            std::cin >> name;
-                            std::cin.ignore();
-                            edit_entry(id, "None", name);  // Only change name
-                            break;
-                            }
-                        case 5:{
-                            double value;
-                            std::cout << "Enter new value: " << std::endl;
-                            std::cin >> value;
-                            std::cin.ignore();
-                            edit_entry(id, "None", "None", value);  // Only change value
-                            break;
-                               }
-                        case 6:
-                            break;
-                    }
-                       }
-
+                case 4:
+                      handle_edit_entry(db);
+                      break;
                 case 5:
                     view_summary(db, current_month);
                     break;

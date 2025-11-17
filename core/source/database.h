@@ -30,6 +30,14 @@ public:
     // Edit entry
     bool edit_entry(int id, const std::string& new_type = "None", const std::string& new_name = "None", double new_value = 0.0);
 
+    // Check entry
+    bool entry_exists(const int id);
+
+    // Edit
+    bool update_type(const int id, const std::string& type);
+    bool update_name(const int id, const std::string& name);
+    bool update_value(const int id, const double value);
+
     // Get all entries for a specific month
     std::vector<Entry> get_entries_by_month(const std::string& month);
 

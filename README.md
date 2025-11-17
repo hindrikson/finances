@@ -1,7 +1,8 @@
 # C++ Project Starter Template
 
 # TODO
-- [ ] Continue with edit_entry function from app.cpp
+- [ ] Add delete_entry option.
+- [X] Continue with edit_entry function from app.cpp
 - [ ] Create a container for it
 
 This is a little quick-start project template for C++ projects which utilise a Core/App project architecture. There are two included projects - one called _Core_, and one called _App_. [Premake](https://github.com/premake/premake-core) is used to generate project files.
