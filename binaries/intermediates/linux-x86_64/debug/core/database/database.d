@@ -1,5 +1,5 @@
 ../binaries/intermediates/linux-x86_64/debug/core/database.o: \
-  source/database/database.cpp source/database/database.h \
+  source/database.cpp source/database.h \
   /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../include/c++/15.2.1/string \
   /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../include/c++/15.2.1/bits/requires_hosted.h \
   /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../include/c++/15.2.1/x86_64-pc-linux-gnu/bits/c++config.h \
@@ -334,7 +334,7 @@
   /usr/include/pqxx/transactor.hxx \
   /usr/include/pqxx/internal/header-post.hxx \
   /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../include/c++/15.2.1/iostream
-source/database/database.h:
+source/database.h:
 /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../include/c++/15.2.1/string:
 /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../include/c++/15.2.1/bits/requires_hosted.h:
 /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../include/c++/15.2.1/x86_64-pc-linux-gnu/bits/c++config.h:

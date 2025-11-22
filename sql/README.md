@@ -37,13 +37,13 @@ Run the sql code below:
 CREATE TABLE IF NOT EXISTS entries (
     id SERIAL PRIMARY KEY,
     month DATE NOT NULL,
-    type VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income', 'current_state')),
+    type VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income', 'account_state')),
     name VARCHAR(255) NOT NULL,
     value DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-[CREATE](CREATE) INDEX idx_entries_month ON entries(month);
+CREATE INDEX idx_entries_month ON entries(month);
 CREATE INDEX idx_entries_type ON entries(type);
 
 

@@ -18,7 +18,6 @@ struct Entry {
 class Database {
 public:
     Database(const std::string& connection_string);
-    ~Database();
 
     // Initialize database schema
     void initialize();
@@ -29,6 +28,8 @@ public:
 
     // Edit entry
     bool edit_entry(int id, const std::string& new_type = "None", const std::string& new_name = "None", double new_value = 0.0);
+
+    bool delete_entry(const int id);
 
     // Check entry
     bool entry_exists(const int id);

@@ -1,4 +1,4 @@
-#include "database.h"
+#include "database/database.h"
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -48,7 +48,8 @@ void display_edit_entry_menu(){
     std::cout << "3. Account State" << std::endl;
     std::cout << "4. Name" << std::endl;
     std::cout << "5. Value" << std::endl;
-    std::cout << "6. Exit" << std::endl;
+    std::cout << "6. Delete entry" << std::endl;
+    std::cout << "7. Exit" << std::endl;
     std::cout << "\nChoice: ";
 }
 
@@ -75,6 +76,16 @@ void add_entry(finance::Database& db, const std::string& month, const std::strin
     }
 }
 
+void delete_entry(finance::Database& db,
+        int id
+        ){
+
+    db.delete_entry(id);
+
+    std::cout << "Entry " << id << " was successfully deleted." << std::endl;
+
+}
+
 void edit_entry(finance::Database& db,
         int id,
         std::optional<std::string> type = std::nullopt,
@@ -87,7 +98,6 @@ void edit_entry(finance::Database& db,
     }
 
     if (name.has_value()){
-        std::cout << "Hello world!" << std::endl;
         db.update_name(id, name.value());
     }
 
@@ -210,6 +220,9 @@ void handle_edit_entry(finance::Database& db){
                     break;
                 }
         case 6: 
+            delete_entry(db, id);
+            break;
+        case 7: 
             std::cout << "Edit cancelled." << std::endl;
             break;
 
@@ -263,9 +276,11 @@ int main() {
                 case 6:
                     view_entries(db, current_month);
                     break;
-                case 8:
+                case 7:
                     std::cout << "Goodbye!" << std::endl;
                     return 0;
+                    // std::cout << "Goodbye!" << std::endl;
+                    // return 0;
                 default:
                     std::cout << "Invalid choice!" << std::endl;
             }

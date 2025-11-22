@@ -16,8 +16,8 @@ includedirs({
 
 links({
 	"core",
-	"pqxx", -- libpqxx
-	"pq", -- libpq (PostgreSQL)
+    "pqxx",  -- Add these back
+	"pq",    -- Add these back
 })
 
 targetdir("../binaries/" .. OutputDir .. "/%{prj.name}")

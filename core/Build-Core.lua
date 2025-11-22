@@ -11,6 +11,11 @@ includedirs({
 	"source",
 })
 
+links({
+    "pqxx",
+    "pq",
+})
+
 targetdir("../binaries/" .. OutputDir .. "/%{prj.name}")
 objdir("../binaries/intermediates/" .. OutputDir .. "/%{prj.name}")
 
