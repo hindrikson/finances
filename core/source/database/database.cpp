@@ -18,6 +18,17 @@ Database::Database(const std::string& connection_string) {
     }
 }
 
+Database::~Database() {
+    try {
+        if (conn_ && conn_->is_open()) {
+            conn_->close();
+        }
+    } catch (const std::exception& e) {
+        // Suppress exceptions in destructor
+        std::cerr << "Error closing database connection: " << e.what() << std::endl;
+    }
+}
+
 void Database::initialize() {
     try {
         pqxx::work txn(*conn_);

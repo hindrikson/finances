@@ -18,6 +18,7 @@ struct Entry {
 class Database {
 public:
     Database(const std::string& connection_string);
+    ~Database(); // Add explicit destructor declaration
 
     // Initialize database schema
     void initialize();
