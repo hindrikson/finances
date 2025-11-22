@@ -18,17 +18,6 @@ Database::Database(const std::string& connection_string) {
     }
 }
 
-Database::~Database() {
-    try {
-        if (conn_ && conn_->is_open()) {
-            conn_->close();
-        }
-    } catch (const std::exception& e) {
-        // Suppress exceptions in destructor
-        std::cerr << "Error closing database connection: " << e.what() << std::endl;
-    }
-}
-
 void Database::initialize() {
     try {
         pqxx::work txn(*conn_);
@@ -71,15 +60,20 @@ bool Database::add_entry(const std::string& month, const std::string& type,
 }
 
 bool Database::delete_entry(const int id){
-    pqxx::work txn(*conn_);
+    try {
+        pqxx::work txn(*conn_);
 
-    pqxx::result res = txn.exec(
-            "DELETE FROM entries WHERE id = $1",
-            pqxx::params(id)
-            );
+        pqxx::result res = txn.exec(
+                "DELETE FROM entries WHERE id = $1",
+                pqxx::params(id)
+                );
 
-    txn.commit();
-    return res.affected_rows() > 0;
+        txn.commit();
+        return res.affected_rows() > 0;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to delete entry: " << e.what() << std::endl;
+        return false;
+    }
 
 }
 
