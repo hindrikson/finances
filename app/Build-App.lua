@@ -12,12 +12,15 @@ includedirs({
 
 	-- Include Core
 	"../core/source",
+    "../cli/source",
+
 })
 
 links({
 	"core",
-    "pqxx",  -- Add these back
-	"pq",    -- Add these back
+    "cli",
+    "pqxx",
+	"pq",
 })
 
 targetdir("../binaries/" .. OutputDir .. "/%{prj.name}")

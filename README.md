@@ -1,6 +1,8 @@
 # C++ Project Starter Template
 
 # TODO
+- [ ] I added the cli directory. But the cli directory does not seemed to get built.
+ 
 - [ ] Add delete_entry option.
 - [X] Continue with edit_entry function from app.cpp
 - [ ] Create a container for it
