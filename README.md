@@ -1,7 +1,8 @@
 # C++ Project Starter Template
 
 # TODO
-- [ ] I added the cli directory. But the cli directory does not seemed to get built.
+- [ ] If I try to edit entry id 2 I do not get any error eventhough entry 2 does not exists.
+- [X] I added the cli directory. But the cli directory does not seemed to get built.
  
 - [ ] Add delete_entry option.
 - [X] Continue with edit_entry function from app.cpp
