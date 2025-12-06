@@ -10,8 +10,9 @@ buildoptions({ "/EHsc", "/Zc:preprocessor", "/Zc:__cplusplus" })
 
 OutputDir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 
-group("core")
+-- group("core")
 include("core/Build-Core.lua")
-group("")
+-- group("")
 
+include("cli/Build-Cli.lua")
 include("app/Build-App.lua")
