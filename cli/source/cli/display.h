@@ -5,7 +5,7 @@
 namespace cli {
     void display_menu();
 
-    void display_edit_entry_menu();
+    void display_edit_entry_menu(finance::Database& db, int id);
 
     void clear_screen();
 

@@ -52,7 +52,7 @@ int main() {
                     cli_handlers::add_entry(db, current_month, "account_state");
                     break;
                 case 4:
-                    cli_handlers::handle_edit_entry(db);
+                    cli_handlers::handle_edit_entry(db, current_month);
                       break;
                 case 5:
                       cli::view_summary(db, current_month);
@@ -63,8 +63,6 @@ int main() {
                 case 7:
                     std::cout << "Goodbye!" << std::endl;
                     return 0;
-                    // std::cout << "Goodbye!" << std::endl;
-                    // return 0;
                 default:
                     std::cout << "Invalid choice!" << std::endl;
             }

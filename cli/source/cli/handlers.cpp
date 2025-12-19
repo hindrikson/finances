@@ -58,15 +58,15 @@ namespace cli_handlers {
         }
     }
 
-    void handle_edit_entry(finance::Database& db){
+    void handle_edit_entry(finance::Database& db, std::string& month){
         int id = input::get_entry_id();
 
-        if (!db.entry_exists(id)){
+        if (!db.entry_exists(id, month)){
             std::cout << "Error: No entry found with ID " << id << std::endl;
             return;
         }
 
-        cli::display_edit_entry_menu();
+        cli::display_edit_entry_menu(db, id);
 
         int choice;
 

@@ -10,8 +10,13 @@ If not installed install postgres:
     set the password:
     export DATABASE_PASSWORD=1234
 
-    set connection variable
+    - set connection variable
     export DB_CONNECTION_STRING="postgresql://postgres:1234@localhost:5432/development"
+    - start the postres server
+    podman start postgres-dev
+
+
+    
 
 
     podman run -d \

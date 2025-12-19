@@ -11,5 +11,5 @@ namespace cli_handlers {
             std::optional<std::string> name = std::nullopt,
             std::optional<double> value = std::nullopt
             );
-    void handle_edit_entry(finance::Database& db);
+    void handle_edit_entry(finance::Database& db, std::string& month);
 }

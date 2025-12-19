@@ -43,6 +43,38 @@ void Database::initialize() {
     }
 }
 
+std::vector<Entry> Database::entry_info(int id) {
+    std::vector<Entry> entries;
+    
+    try {
+        pqxx::work txn(*conn_);
+        
+        pqxx::result res = txn.exec(
+            "SELECT id, month, type, name, value, created_at FROM entries WHERE id = $1 ORDER BY created_at DESC",
+            // std::vector<std::string>{month}
+            pqxx::params(id)
+        );
+        
+        for (const auto& row : res) {
+            Entry entry;
+            entry.id = row["id"].as<int>();
+            entry.month = row["month"].as<std::string>();
+            entry.type = row["type"].as<std::string>();
+            entry.name = row["name"].as<std::string>();
+            entry.value = row["value"].as<double>();
+            entry.created_at = row["created_at"].as<std::string>();
+            entries.push_back(entry);
+        }
+        
+        txn.commit();
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to retrieve entry information: " << e.what() << std::endl;
+    }
+    
+    return entries;
+}
+
+
 bool Database::add_entry(const std::string& month, const std::string& type,
                          const std::string& name, double value) {
     try {
@@ -77,13 +109,13 @@ bool Database::delete_entry(const int id){
 
 }
 
-bool Database::entry_exists(const int id){
+bool Database::entry_exists(const int id, std::string& month){
     try {
 
         pqxx::work txn(*conn_);
         pqxx::result res = txn.exec(
-                "SELECT COUNT(*) FROM entries WHERE id = $1",
-                pqxx::params(id)
+                "SELECT COUNT(*) FROM entries WHERE id = $1 AND month = $2",
+                pqxx::params(id, month)
                 );
 
         int count = res[0][0].as<int>();

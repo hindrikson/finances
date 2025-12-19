@@ -29,7 +29,8 @@ public:
     bool delete_entry(const int id);
 
     // Check entry
-    bool entry_exists(const int id);
+    bool entry_exists(const int id, std::string& month);
+    std::vector<Entry> entry_info(int id);
 
     // Edit
     bool update_type(const int id, const std::string& type);

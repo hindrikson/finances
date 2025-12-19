@@ -17,8 +17,33 @@ namespace cli {
         std::cout << "\nChoice: ";
     }
 
-    void display_edit_entry_menu(){
+    void display_edit_entry_menu(finance::Database& db, int id){
+
         std::cout << "\n=== Editing Entry ===" << std::endl;
+
+        auto entry = db.entry_info(id);
+        if (entry.empty()) {
+            std::cout << "\nNo information found for this entry." << std::endl;
+            return;
+        }
+        std::cout << "\nEntry Info" << " ===" << std::endl;
+        std::cout << std::left << std::setw(10) << "ID" 
+                  << std::setw(15) << "Month" 
+                  << std::setw(10) << "Type" 
+                  << std::setw(30) << "Name" 
+                  << std::right << std::setw(12) << "Amount" << std::endl;
+        std::cout << std::string(72, '-') << std::endl;
+
+        for (const auto& item : entry) {
+            std::cout << std::left << std::setw(10) << item.id
+                      << std::setw(15) << item.month
+                      << std::setw(10) << item.type
+                      << std::setw(30) << item.name
+                      << std::right << std::setw(7) << std::fixed << std::setprecision(2) 
+                      << "$" << item.value << std::endl;
+        }
+
+        std::cout << "" << std::endl;
         std::cout << "1. Expense" << std::endl;
         std::cout << "2. Income" << std::endl;
         std::cout << "3. Account State" << std::endl;
